@@ -84,7 +84,7 @@ export default function SiteLayout({ children }) {
             <Link href="/favorites">आवडत्या</Link>
             <Link href="/about">आमच्याबद्दल</Link>
           </div>
-          <p className="footer-copy">© {new Date().getFullYear()} आरती संग्रहालय</p>
+          <p className="footer-copy">© {new Date().getFullYear()} Developed by <a href="https://virajpate.great-site.net/" target="_blank" rel="noopener noreferrer">Viraj Pate</a></p>
         </div>
       </footer>
     </>
