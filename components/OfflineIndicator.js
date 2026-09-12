@@ -22,7 +22,7 @@ export default function OfflineIndicator() {
 
   return (
     <div className="offline-pill" role="status">
-      <WifiOff size={14} /> ऑफलाइन मोड — जतन केलेला मजकूर दाखवत आहोत
+      <WifiOff size={14} /> 
     </div>
   );
 }
