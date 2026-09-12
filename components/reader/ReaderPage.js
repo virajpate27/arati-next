@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, MoreVertical, MoreHorizontal, Volume2, Share2, Bookmark, X } from "lucide-react";
+import { ArrowLeft, MoreVertical, MoreHorizontal, Volume2, Pause, Share2, Bookmark, X } from "lucide-react";
 import * as storage from "@/lib/storage";
 import { useFavorite } from "@/lib/hooks/useFavorite";
+import { useSpeechReader } from "@/lib/hooks/useSpeechReader";
 
 const FONT_LABELS = { small: "लहान", normal: "सामान्य", large: "मोठे", xlarge: "अतिमोठे" };
 
@@ -79,6 +80,20 @@ export default function ReaderPage({ aarti }) {
 
   const activeIndex = aarti.verses.findIndex((v) => v.id === activeVerseId);
 
+  const speech = useSpeechReader({
+    onVerseChange: (verseId) => {
+      setActiveVerseId(verseId);
+      scrollToVerse(verseId);
+    },
+    onEnd: () => showToast("आरती वाचून पूर्ण झाली"),
+  });
+
+  // Stop any ongoing speech if the reader switches to a different aarti.
+  useEffect(() => {
+    return () => speech.stop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aarti.id]);
+
   const showToast = useCallback((msg) => {
     setToast(msg);
     clearTimeout(toastTimer.current);
@@ -142,10 +157,21 @@ export default function ReaderPage({ aarti }) {
 
   function handleAudio() {
     if (aarti.audio && aarti.audio.src) {
-      // Future: Howler.js playback + verse-follow via aarti.audio.timings
+      // Future: real recorded audio, once available — Howler.js
+      // playback + verse-follow via aarti.audio.timings.
       showToast("ऑडिओ प्लेबॅक लवकरच येत आहे");
+      return;
+    }
+    if (!speech.supported) {
+      showToast("या ब्राउझर/डिव्हाइसवर आवाजात वाचन उपलब्ध नाही");
+      return;
+    }
+    if (speech.speaking && !speech.paused) {
+      speech.pause();
+    } else if (speech.speaking && speech.paused) {
+      speech.resume();
     } else {
-      showToast("या आरतीसाठी ऑडिओ अद्याप उपलब्ध नाही");
+      speech.start(aarti.verses, activeIndex >= 0 ? activeIndex : 0);
     }
   }
 
@@ -263,8 +289,13 @@ export default function ReaderPage({ aarti }) {
           A+
         </button>
         <span className="divider" aria-hidden="true" />
-        <button onClick={handleAudio} aria-label="ऑडिओ ऐका">
-          <Volume2 size={20} />
+        <button
+          className={speech.speaking && !speech.paused ? "is-active" : ""}
+          onClick={handleAudio}
+          aria-label={speech.speaking && !speech.paused ? "वाचन थांबवा" : "आवाजात ऐका"}
+          aria-pressed={speech.speaking && !speech.paused}
+        >
+          {speech.speaking && !speech.paused ? <Pause size={20} /> : <Volume2 size={20} />}
         </button>
         <button
           className={isFav ? "is-active" : ""}
@@ -293,6 +324,17 @@ export default function ReaderPage({ aarti }) {
         <button className="sheet-item" onClick={shareAarti}>
           <Share2 size={20} /> ही आरती शेअर करा
         </button>
+        {speech.speaking && (
+          <button
+            className="sheet-item"
+            onClick={() => {
+              speech.stop();
+              setSheetOpen(false);
+            }}
+          >
+            <Pause size={20} /> आवाजातील वाचन थांबवा
+          </button>
+        )}
         <button className="sheet-item" onClick={() => setSheetOpen(false)}>
           <X size={20} /> बंद करा
         </button>

@@ -20,63 +20,14 @@
  *    while-revalidate.
  */
 
-const CACHE_VERSION = "8b6a7bb40e";
+const CACHE_VERSION = "__CACHE_VERSION__";
 const CACHE_NAME = `aarti-sangrahalay-${CACHE_VERSION}`;
 const OFFLINE_URL = "/offline";
 
 // Filled in by scripts/generate-sw.js: the site-shell routes, every
 // individual /aarti/<id> reading page, and (when a .next build is
 // present) the hashed JS/CSS chunks those pages need.
-const PRECACHE_URLS = [
-  "/",
-  "/list",
-  "/categories",
-  "/favorites",
-  "/settings",
-  "/about",
-  "/offline",
-  "/aarti/ganpati-sukhkarta",
-  "/aarti/shiv-lavathavati",
-  "/aarti/vitthal-yuge-athhavis",
-  "/aarti/maruti-satrane",
-  "/aarti/devi-durge-durghat",
-  "/aarti/dattaguru-trigunatmak",
-  "/aarti/vishnu-shantakaram",
-  "/aarti/shriram-aarti",
-  "/aarti/krishna-aarti",
-  "/aarti/ganpati-tu-sukhkarta",
-  "/aarti/ganpati-gajanana-shriganraya",
-  "/aarti/ganpati-bappa-morya-re",
-  "/aarti/vishnu-ghalin-lotangan",
-  "/aarti/ganpati-shendur-lal-chadhayo",
-  "/aarti/vitthal-yei-ho",
-  "/aarti/sant-aarti-dnyanraja",
-  "/aarti/ganpati-undravar-baisoni",
-  "/aarti/ganpati-nanaparimal",
-  "/aarti/ganpati-aarti-karu-tuj-morya",
-  "/aarti/ganpati-sthapit-prathamarambhi",
-  "/aarti/ganpati-kapol-jharti",
-  "/aarti/ganpati-jay-jay-ganpati-ovalit",
-  "/aarti/ganpati-jay-jay-ganpati-aghshamna",
-  "/aarti/ganpati-nammiti",
-  "/aarti/ganpati-gajvadana-man-namale",
-  "/aarti/ganpati-gajvadana-pujuni",
-  "/aarti/ganpati-ovalu-shrimangalmurti",
-  "/aarti/ganpati-ekdanta-gunwanta",
-  "/aarti/ganpati-jay-jay-ji-vighnahara",
-  "/aarti/ganpati-jay-dev-jay-vakratunda",
-  "/aarti/ganpati-jay-dev-jayji-ganraya",
-  "/aarti/ganpati-dindayala",
-  "/aarti/ganpati-premgangajale",
-  "/aarti/ganpati-mangaldayak",
-  "/aarti/ganpati-vakratunda-ekdant-gaurinandana",
-  "/aarti/ganpati-vedshastranmaji-moreshwara",
-  "/aarti/ganpati-shivkumara",
-  "/aarti/krishna-aarti-bhuvansundaracha",
-  "/manifest.json",
-  "/icons/icon-192.png",
-  "/icons/icon-512.png"
-];
+const PRECACHE_URLS = "__PRECACHE_URLS__";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

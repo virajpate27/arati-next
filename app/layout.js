@@ -1,5 +1,8 @@
 import { Noto_Sans_Devanagari, Noto_Serif_Devanagari } from "next/font/google";
 import MotionPreferenceSync from "@/components/MotionPreferenceSync";
+import PwaRegister from "@/components/PwaRegister";
+import OfflineIndicator from "@/components/OfflineIndicator";
+import UpdateToast from "@/components/UpdateToast";
 import "@/styles/main.css";
 import "@/styles/components.css";
 import "@/styles/responsive.css";
@@ -22,6 +25,15 @@ export const metadata = {
   title: "आरती संग्रहालय — भक्ती, परंपरा, संस्कृती",
   description: "मराठी आरत्यांचा प्रीमियम डिजिटल संग्रह — वाचा, ऐका, आवडती जतन करा.",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/icons/icon-192.png",
+    apple: "/icons/icon-192.png",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "आरती संग्रह",
+  },
 };
 
 export const viewport = {
@@ -34,6 +46,9 @@ export default function RootLayout({ children }) {
     <html lang="mr" className={`${notoSansDevanagari.variable} ${notoSerifDevanagari.variable}`}>
       <body>
         <MotionPreferenceSync />
+        <PwaRegister />
+        <OfflineIndicator />
+        <UpdateToast />
         {children}
       </body>
     </html>

@@ -24,6 +24,47 @@ npm run start
 > runtime request). This requires normal internet access during the build —
 > it will fail in network-locked sandboxes that block `fonts.googleapis.com`.
 
+## PWA / offline support
+
+The app installs like a native app and works fully offline once opened:
+
+- `scripts/sw-template.js` — the real service-worker logic (network-first
+  navigations with an `/offline` fallback, cache-first for hashed
+  `/_next/static` assets, cache-or-network for Next.js's RSC data
+  fetches).
+- `scripts/generate-sw.js` — runs automatically after `next build` (via
+  the `postbuild` script) and writes the actual `public/sw.js`: it bakes
+  in every shell route, every individual `/aarti/<id>` page (read
+  straight from `lib/data/aartis.js`, so new aartis are picked up
+  automatically), and — when a `.next` build is present — the exact
+  hashed JS/CSS chunk paths those pages need. The cache is versioned by
+  a hash of that list, so a new build always invalidates old caches.
+- `components/PwaRegister.js` registers the worker (production only)
+  and shows `<UpdateToast />` when a new version has finished
+  installing in the background, instead of silently reloading mid-read.
+- `components/OfflineIndicator.js` shows a small pill when the browser
+  goes offline.
+- Settings → "अ‍ॅप व ऑफलाइन" has an install button
+  (`components/InstallPwaButton.js` + `lib/hooks/usePwaInstall.js`,
+  wrapping `beforeinstallprompt`) and a "साठवा" button that tells the
+  service worker to eagerly cache every aarti right away, instead of
+  waiting for each one to be opened once.
+
+Run `npm run build` (not just `next build` directly) so the postbuild
+step regenerates `public/sw.js` — otherwise you'll ship a stale
+precache list.
+
+## Listen (offline-capable text-to-speech)
+
+No aarti currently ships an audio recording (`audio: null` for all 38
+in `lib/data/aartis.js`). The reader's speaker button
+(`lib/hooks/useSpeechReader.js`) uses the browser's built-in
+`speechSynthesis` API instead — no audio files to host, and it reads
+verse-by-verse so the existing verse-highlight/scroll logic follows
+along. It prefers a Marathi voice, falls back to Hindi, then whatever
+default voice exists. On-device voices keep working offline; a
+browser's "cloud" voices (if any) won't.
+
 ## Project structure
 
 ```

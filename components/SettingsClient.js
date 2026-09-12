@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronRight, Trash2 } from "lucide-react";
+import { ChevronRight, Trash2, Download } from "lucide-react";
 import * as storage from "@/lib/storage";
+import { AARTI_DATA } from "@/lib/data/aartis";
 import { useFavoriteIds, FAVORITES_EVENT } from "@/lib/hooks/useFavorite";
 import { SETTINGS_EVENT } from "@/components/MotionPreferenceSync";
+import InstallPwaButton from "@/components/InstallPwaButton";
 
 const FONT_OPTIONS = [
   { id: "small", label: "लहान" },
@@ -23,6 +25,7 @@ export default function SettingsClient() {
   const [fontSize, setFontSizeState] = useState("normal");
   const [mode, setModeState] = useState("normal");
   const [reduceMotion, setReduceMotion] = useState(false);
+  const [offlineStatus, setOfflineStatus] = useState("");
   const favIds = useFavoriteIds();
 
   useEffect(() => {
@@ -30,6 +33,32 @@ export default function SettingsClient() {
     setModeState(storage.getReadingMode());
     setReduceMotion(!!storage.getSettings().reduceMotion);
   }, []);
+
+  // Listens for the service worker's confirmation once it has
+  // finished caching every aarti for offline reading.
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
+    function onMessage(event) {
+      if (event.data?.type !== "CACHE_URLS_DONE") return;
+      const { total, failed } = event.data;
+      setOfflineStatus(
+        failed ? `${total - failed}/${total} आरत्या ऑफलाइनसाठी जतन झाल्या` : "सर्व आरत्या ऑफलाइनसाठी जतन झाल्या ✓"
+      );
+    }
+    navigator.serviceWorker.addEventListener("message", onMessage);
+    return () => navigator.serviceWorker.removeEventListener("message", onMessage);
+  }, []);
+
+  async function saveAllOffline() {
+    if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) {
+      setOfflineStatus("हे ब्राउझर ऑफलाइन साठवण समर्थन देत नाही");
+      return;
+    }
+    setOfflineStatus("जतन होत आहे…");
+    const registration = await navigator.serviceWorker.ready;
+    const urls = AARTI_DATA.map((a) => `/aarti/${a.id}`);
+    registration.active?.postMessage({ type: "CACHE_URLS", urls });
+  }
 
   function updateFont(id) {
     storage.setFontSize(id);
@@ -113,7 +142,33 @@ export default function SettingsClient() {
             />
           </div>
         </div>
+      </section>
 
+      <section style={{ marginTop: 26 }} data-entrance>
+        <div className="section-head">
+          <h2>अ‍ॅप व ऑफलाइन</h2>
+        </div>
+        <div className="settings-group">
+          <div className="settings-row">
+            <div>
+              <p className="row-label">अ‍ॅप इन्स्टॉल करा</p>
+              <p className="row-desc">होम स्क्रीनवर जोडा, वेगळ्या अ‍ॅपसारखे उघडा</p>
+            </div>
+            <InstallPwaButton />
+          </div>
+          <div className="settings-row">
+            <div>
+              <p className="row-label">सर्व आरत्या ऑफलाइनसाठी साठवा</p>
+              <p className="row-desc">{offlineStatus || "इंटरनेटशिवायही सर्व आरत्या वाचता येतील"}</p>
+            </div>
+            <button className="btn" onClick={saveAllOffline} style={{ gap: 6 }}>
+              <Download size={16} /> साठवा
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section style={{ marginTop: 26 }} data-entrance>
         <div className="settings-group">
           <Link className="settings-row" href="/favorites" style={{ textDecoration: "none" }}>
             <div>
