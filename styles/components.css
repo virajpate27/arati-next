@@ -81,6 +81,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  width: 150px;
 }
 .aarti-card .card-meta {
   margin-top: 14px;
@@ -751,6 +752,8 @@
   font-size: 0.86rem;
   z-index: 90;
   box-shadow: var(--shadow-soft);
+  justify-content: center;
+  width: 80%;
 }
 .pwa-toast button {
   display: inline-flex;
